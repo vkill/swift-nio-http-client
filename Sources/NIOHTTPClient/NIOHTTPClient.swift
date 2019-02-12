@@ -1,14 +1,16 @@
 import NIO
 
 public struct NIOHTTPClient {
-    let channel: NIOHTTPClientChannel
     
-    private init(
-        channel: NIOHTTPClientChannel
-    ) {
-        self.channel = channel
+    private let eventLoopGroup: EventLoopGroup?
+    
+    public init(on eventLoopGroup: EventLoopGroup? = nil) {
+        self.eventLoopGroup = eventLoopGroup
     }
-}
-
-extension NIOHTTPClient {
+    
+    public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
+        let promise = eventLoopGroup!.next().newPromise(of: HTTPResponse.self)
+        // TODO
+        return promise.futureResult
+    }
 }

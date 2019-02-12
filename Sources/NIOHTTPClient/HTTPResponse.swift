@@ -9,5 +9,5 @@ public struct HTTPResponse {
 
 public enum HTTPResponseBody {
     case whole(Data)
-    case chunks((Data) -> EventLoopFuture<Void>)
+    // TODO: chunks
 }

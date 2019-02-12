@@ -37,7 +37,7 @@ public struct NIOHTTPClientChannel {
                 } else {
                     let tlsConfiguration = TLSConfiguration.forClient(certificateVerification: .none)
                     let sslContext = try SSLContext(configuration: tlsConfiguration)
-                    let tlsHandler = try OpenSSLClientHandler(context: sslContext)
+                    let tlsHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: connectHost.isIPAddress() ? nil : connectHost)
                     
                     handlers.append(tlsHandler)
                 }
@@ -61,7 +61,7 @@ public struct NIOHTTPClientChannel {
                 } else {
                     let tlsConfiguration = TLSConfiguration.forClient(certificateVerification: .none)
                     let sslContext = try SSLContext(configuration: tlsConfiguration)
-                    let tlsHandler = try OpenSSLClientHandler(context: sslContext)
+                    let tlsHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: connectHost.isIPAddress() ? nil : connectHost)
                     
                     handlers.append(tlsHandler)
                 }
