@@ -10,8 +10,8 @@ let package = Package(
             targets: ["NIOHTTPClient"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-nio.git", from: "1.12.0"),
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "1.3.2"),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "1.13.0"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "1.4.0"),
     ],
     targets: [
         .target(
