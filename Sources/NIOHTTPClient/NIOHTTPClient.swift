@@ -8,9 +8,9 @@ public struct NIOHTTPClient {
         self.eventLoopGroup = eventLoopGroup
     }
     
-    public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
-        let promise = eventLoopGroup!.next().newPromise(of: HTTPResponse.self)
-        // TODO
-        return promise.futureResult
+    public func request(_ req: HTTPRequest, config: NIOHTTPConnectionConfig) -> EventLoopFuture<HTTPResponse> {
+        return NIOHTTPConnection.make(req: req, config: config).then { connection in
+            return connection.send(req)
+        }
     }
 }
