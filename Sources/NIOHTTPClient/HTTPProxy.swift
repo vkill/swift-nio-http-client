@@ -1,4 +1,3 @@
-import NIO
 import NIOOpenSSL
 import struct Foundation.URL
 
@@ -17,7 +16,7 @@ public struct HTTPProxy {
         url: URL,
         tlsHandler: OpenSSLClientHandler? = nil
     ) throws -> HTTPProxy {
-        guard let host = url.host, !host.isEmpty else {
+        guard let address = url.host, !address.isEmpty else {
             throw HTTPProxyError.invalidHost
         }
         
@@ -34,7 +33,7 @@ public struct HTTPProxy {
             } else {
                 let tlsConfiguration = TLSConfiguration.forClient(certificateVerification: .none)
                 let sslContext = try SSLContext(configuration: tlsConfiguration)
-                let tlsHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: host.isIPAddress() ? nil : host)
+                let tlsHandler = try OpenSSLClientHandler(context: sslContext, serverHostname: address.isIPAddress() ? nil : address)
                 scheme = .https(tlsHandler)
             }
             
@@ -48,7 +47,7 @@ public struct HTTPProxy {
 
         return .init(
             scheme: scheme,
-            host: host,
+            address: address,
             port: port,
             username: username,
             password: password
@@ -58,22 +57,8 @@ public struct HTTPProxy {
     //
     
     public let scheme: HTTPProxyScheme
-    public let host: String
+    public let address: String
     public let port: Int
     public let username: String?
     public let password: String?
-
-    public init(
-        scheme: HTTPProxyScheme,
-        host: String,
-        port: Int,
-        username: String? = nil,
-        password: String? = nil
-    ) {
-        self.scheme = scheme
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-    }
 }

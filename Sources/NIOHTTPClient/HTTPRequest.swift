@@ -24,7 +24,7 @@ public struct HTTPRequest {
     
     public var socketHost: String {
         if let proxy = proxy {
-            return proxy.host
+            return proxy.address
         } else {
             // TODO
             return headURL.host!

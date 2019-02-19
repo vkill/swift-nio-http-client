@@ -2,16 +2,6 @@ import NIO
 
 fileprivate let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
-public struct NIOHTTPConnectionConfig {
-    public var connectTimeout: TimeAmount?
-    
-    public init(
-        connectTimeout: TimeAmount?
-    ) {
-        self.connectTimeout = connectTimeout
-    }
-}
-
 internal struct NIOHTTPConnection {
     public static func make(
         req: HTTPRequest,
