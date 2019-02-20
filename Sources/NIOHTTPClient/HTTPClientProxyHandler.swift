@@ -11,7 +11,7 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     var onConnect: (ChannelHandlerContext) -> ()
 
     init(connectionConfig: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
-        assert(connectionConfig.proxy != nil)
+        assert(connectionConfig.proxy != nil, "Should have proxy")
         self.connectionConfig = connectionConfig
         self.onConnect = onConnect
     }

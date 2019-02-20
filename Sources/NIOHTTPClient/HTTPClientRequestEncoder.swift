@@ -24,7 +24,7 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         head.headers.replaceOrAdd(name: "User-Agent", value: "NIOHTTPClient")
         
         guard var urlComponents = URLComponents(string: head.uri) else {
-            fatalError()
+            assert(false, "invalid head.uri \(head.uri)")
         }
         if let _ = connectionConfig.proxy {
             if case .https(_) = connectionConfig.server.scheme {
@@ -36,7 +36,7 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
             urlComponents.path = "/" + urlComponents.path
         }
         guard let url = urlComponents.url else {
-            fatalError()
+            assert(false, "convert URLComponents to URL failed")
         }
         head.uri = url.absoluteString
         
