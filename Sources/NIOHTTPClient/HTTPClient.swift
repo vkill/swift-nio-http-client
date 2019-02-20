@@ -1,4 +1,6 @@
 import NIO
+import NIOHTTP1
+import struct Foundation.Data
 
 public struct HTTPClient {
     private let connectionConfig: HTTPConnectionConfig
@@ -7,6 +9,41 @@ public struct HTTPClient {
     public init(connectionConfig: HTTPConnectionConfig, on eventLoopGroup: EventLoopGroup? = nil) {
         self.connectionConfig = connectionConfig
         self.eventLoopGroup = eventLoopGroup
+    }
+    
+    public func head(uri: String, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .HEAD, uri: uri, headers: headers)
+        return self.request(req)
+    }
+    
+    public func get(uri: String, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .GET, uri: uri, headers: headers)
+        return self.request(req)
+    }
+    
+    public func post(uri: String, body: Data?, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .POST, uri: uri, body: body, headers: headers)
+        return self.request(req)
+    }
+    
+    public func put(uri: String, body: Data?, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .PUT, uri: uri, body: body, headers: headers)
+        return self.request(req)
+    }
+    
+    public func delete(uri: String, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .DELETE, uri: uri, headers: headers)
+        return self.request(req)
+    }
+    
+    public func options(uri: String, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .OPTIONS, uri: uri, headers: headers)
+        return self.request(req)
+    }
+    
+    public func patch(uri: String, body: Data?, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
+        let req = HTTPRequest(method: .PATCH, uri: uri, body: body, headers: headers)
+        return self.request(req)
     }
     
     public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
