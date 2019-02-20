@@ -52,3 +52,13 @@ public struct HTTPClient {
         }
     }
 }
+
+internal final class HTTPClientContext {
+    let request: HTTPRequest
+    let promise: EventLoopPromise<HTTPResponse>
+    
+    init(request: HTTPRequest, promise: EventLoopPromise<HTTPResponse>) {
+        self.request = request
+        self.promise = promise
+    }
+}

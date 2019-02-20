@@ -49,6 +49,9 @@ internal struct HTTPConnection {
         let httpClientResDecoder = HTTPClientResponseDecoder(connectionConfig: config)
         handlers.append(httpClientResDecoder)
         
+        let httpClientHandler = HTTPClientHandler()
+        handlers.append(httpClientHandler)
+        
         
         bootstrap = bootstrap.channelInitializer { channel in
                 return channel.pipeline.addHandlers(handlers, first: false)
@@ -69,7 +72,7 @@ internal struct HTTPConnection {
     
     public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
         let promise = self.channel.eventLoop.newPromise(of: HTTPResponse.self)
-        self.channel.write(req, promise: nil)
+        self.channel.write(HTTPClientContext(request: req, promise: promise), promise: nil)
         return promise.futureResult
     }
     

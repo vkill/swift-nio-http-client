@@ -51,6 +51,6 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
             }
         }
 
-        ctx.write(self.wrapOutboundOut(.end(nil)), promise: promise)
+        ctx.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: promise)
     }
 }

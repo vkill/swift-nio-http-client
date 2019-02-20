@@ -9,11 +9,13 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     
     let connectionConfig: HTTPConnectionConfig
     var onConnect: (ChannelHandlerContext) -> ()
-
+    private var buffer: [HTTPClientRequestPart]
+    
     init(connectionConfig: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
         assert(connectionConfig.proxy != nil, "Should have proxy")
         self.connectionConfig = connectionConfig
         self.onConnect = onConnect
+        self.buffer = []
     }
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
@@ -25,13 +27,18 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
             _ = ""
         case .end:
             self.onConnect(ctx)
-
+            
+            self.buffer.forEach { ctx.write(self.wrapOutboundOut($0), promise: nil) }
+            ctx.flush()
+            
             _ = ctx.pipeline.remove(handler: self)
         }
     }
     
     func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
-        fatalError()
+        let req = self.unwrapOutboundIn(data)
+        self.buffer.append(req)
+        promise?.succeed(result: ())
     }
     
     func channelActive(ctx: ChannelHandlerContext) {
@@ -52,7 +59,6 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
         }
         
         ctx.write(self.wrapOutboundOut(.head(head)), promise: nil)
-        ctx.write(self.wrapOutboundOut(.end(nil)), promise: nil)
-        ctx.flush()
+        ctx.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
     }
 }
