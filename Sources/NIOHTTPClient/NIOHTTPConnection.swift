@@ -1,10 +1,10 @@
 import NIO
+import NIOHTTP1
 
 fileprivate let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
 internal struct NIOHTTPConnection {
-    public static func make(
-        req: HTTPRequest,
+    public static func start(
         config: NIOHTTPConnectionConfig,
         eventLoopGroup: EventLoopGroup? = nil
     ) -> EventLoopFuture<NIOHTTPConnection> {
@@ -13,9 +13,26 @@ internal struct NIOHTTPConnection {
             bootstrap = bootstrap.connectTimeout(connectTimeout)
         }
         
+        var handlers: [ChannelHandler] = []
+        if let proxy = config.proxy {
+            if case .https(let tlsHandler) = proxy.scheme {
+                handlers.append(tlsHandler)
+            }
+        } else {
+            if case .https(let tlsHandler) = config.server.scheme {
+                handlers.append(tlsHandler)
+            }
+        }
+        handlers.append(HTTPRequestEncoder())
+        handlers.append(HTTPResponseDecoder())
+        
         // TODO
         
-        return bootstrap.connect(host: req.socketHost, port: req.socketPort).map { channel in
+        bootstrap = bootstrap.channelInitializer { channel in
+                return channel.pipeline.addHandlers(handlers, first: false)
+        }
+        
+        return bootstrap.connect(host: config.socketHost, port: config.socketPort).map { channel in
             return .init(channel: channel)
         }
     }
@@ -28,7 +45,7 @@ internal struct NIOHTTPConnection {
         self.channel = channel
     }
     
-    public func send(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
+    public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
         let promise = self.channel.eventLoop.newPromise(of: HTTPResponse.self)
         self.channel.write(req, promise: nil)
         return promise.futureResult

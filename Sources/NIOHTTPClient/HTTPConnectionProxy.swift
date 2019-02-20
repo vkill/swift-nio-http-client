@@ -1,26 +1,26 @@
 import NIOOpenSSL
 import struct Foundation.URL
 
-public enum HTTPProxyScheme {
+public enum HTTPConnectionProxyScheme {
     case http
     case https(OpenSSLClientHandler)
 }
 
-public enum HTTPProxyError: Error {
+public enum HTTPConnectionProxyError: Error {
     case invalidHost
     case unsupportedScheme
 }
 
-public struct HTTPProxy {
+public struct HTTPConnectionProxy {
     public static func make(
         url: URL,
         tlsHandler: OpenSSLClientHandler? = nil
-    ) throws -> HTTPProxy {
+    ) throws -> HTTPConnectionProxy {
         guard let address = url.host, !address.isEmpty else {
-            throw HTTPProxyError.invalidHost
+            throw HTTPConnectionProxyError.invalidHost
         }
         
-        let scheme: HTTPProxyScheme
+        let scheme: HTTPConnectionProxyScheme
         let port: Int
         
         switch url.scheme {
@@ -39,7 +39,7 @@ public struct HTTPProxy {
             
             port = url.port ?? 3128
         default:
-            throw HTTPProxyError.unsupportedScheme
+            throw HTTPConnectionProxyError.unsupportedScheme
         }
         
         let username = url.user
@@ -56,7 +56,7 @@ public struct HTTPProxy {
     
     //
     
-    public let scheme: HTTPProxyScheme
+    public let scheme: HTTPConnectionProxyScheme
     public let address: String
     public let port: Int
     public let username: String?
