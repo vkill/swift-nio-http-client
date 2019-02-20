@@ -12,6 +12,9 @@ public enum HTTPConnectionServerError: Error {
 }
 
 public struct HTTPConnectionServer {
+    public static let defaultHTTPPort = 80
+    public static let defaultHTTPSPort = 443
+    
     public static func make(
         url: URL,
         tlsHandler: OpenSSLClientHandler? = nil
@@ -26,7 +29,7 @@ public struct HTTPConnectionServer {
         switch url.scheme {
         case "http":
             scheme = .http
-            port = url.port ?? 80
+            port = url.port ?? defaultHTTPPort
         case "https":
             if let tlsHandler = tlsHandler {
                 scheme = .https(tlsHandler)
@@ -37,7 +40,7 @@ public struct HTTPConnectionServer {
                 scheme = .https(tlsHandler)
             }
             
-            port = url.port ?? 443
+            port = url.port ?? defaultHTTPSPort
         default:
             throw HTTPConnectionServerError.unsupportedScheme
         }
@@ -54,4 +57,13 @@ public struct HTTPConnectionServer {
     public let scheme: HTTPConnectionServerScheme
     public let address: String
     public let port: Int
+    
+    public var isDefaultPort: Bool {
+        switch scheme {
+        case .https(_):
+            return port == type(of: self).defaultHTTPSPort
+        default:
+            return port == type(of: self).defaultHTTPPort
+        }
+    }
 }

@@ -8,11 +8,13 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     typealias OutboundOut = HTTPClientRequestPart
     
     let connectionConfig: HTTPConnectionConfig
+    var onConnect: (ChannelHandlerContext) -> ()
     private var buffer: [HTTPClientRequestPart]
     
-    init(connectionConfig: HTTPConnectionConfig) {
+    init(connectionConfig: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
         assert(connectionConfig.proxy != nil)
         self.connectionConfig = connectionConfig
+        self.onConnect = onConnect
         
         self.buffer = []
     }
@@ -25,6 +27,8 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
         case .body(_):
             _ = ""
         case .end:
+            self.onConnect(ctx)
+            
             self.buffer.forEach { ctx.write(self.wrapOutboundOut($0), promise: nil) }
             ctx.flush()
             

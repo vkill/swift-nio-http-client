@@ -19,19 +19,28 @@ internal struct HTTPConnection {
                 handlers.append(tlsHandler)
             }
             
-            handlers.append(HTTPRequestEncoder())
-            handlers.append(HTTPResponseDecoder())
+            let httpReqEncoder = HTTPRequestEncoder()
+            handlers.append(httpReqEncoder)
             
-            if case .https(_) = config.server.scheme {
-                handlers.append(HTTPClientProxyHandler(connectionConfig: config))
+            let httpResDecoder = HTTPResponseDecoder()
+            handlers.append(httpResDecoder)
+            
+            if case .https(let tlsHandler) = config.server.scheme {
+                let proxyHandler = HTTPClientProxyHandler(connectionConfig: config) { ctx in
+                    _ = ctx.pipeline.add(handler: tlsHandler, before: httpReqEncoder)
+                }
+                handlers.append(proxyHandler)
             }
         } else {
             if case .https(let tlsHandler) = config.server.scheme {
                 handlers.append(tlsHandler)
             }
             
-            handlers.append(HTTPRequestEncoder())
-            handlers.append(HTTPResponseDecoder())
+            let httpReqEncoder = HTTPRequestEncoder()
+            handlers.append(httpReqEncoder)
+            
+            let httpResDecoder = HTTPResponseDecoder()
+            handlers.append(httpResDecoder)
         }
         
         // TODO
