@@ -23,19 +23,22 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         
         head.headers.replaceOrAdd(name: "User-Agent", value: "NIOHTTPClient")
         
-        guard var url = URLComponents(string: head.uri) else {
+        guard var urlComponents = URLComponents(string: head.uri) else {
             fatalError()
         }
         if let _ = connectionConfig.proxy {
             if case .https(_) = connectionConfig.server.scheme {
-                url.host = connectionConfig.server.address
-                url.port = connectionConfig.server.port
+                urlComponents.host = connectionConfig.server.address
+                urlComponents.port = connectionConfig.server.port
             }
         }
-        if !url.path.hasPrefix("/") {
-            url.path = "/" + url.path
+        if !urlComponents.path.hasPrefix("/") {
+            urlComponents.path = "/" + urlComponents.path
         }
-        head.uri = url.url?.absoluteString ?? "/"
+        guard let url = urlComponents.url else {
+            fatalError()
+        }
+        head.uri = url.absoluteString
         
         ctx.write(wrapOutboundOut(.head(head)), promise: nil)
         

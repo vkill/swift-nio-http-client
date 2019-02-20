@@ -43,7 +43,8 @@ internal struct HTTPConnection {
             handlers.append(httpResDecoder)
         }
         
-        // TODO
+        let httpClientReqEncoder = HTTPClientRequestEncoder(connectionConfig: config)
+        handlers.append(httpClientReqEncoder)
         
         bootstrap = bootstrap.channelInitializer { channel in
                 return channel.pipeline.addHandlers(handlers, first: false)
