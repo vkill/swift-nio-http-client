@@ -1,7 +1,7 @@
 import NIO
 import NIOOpenSSL
 
-public struct NIOHTTPConnectionConfig {
+public struct HTTPConnectionConfig {
     public var server: HTTPConnectionServer
     public var proxy: HTTPConnectionProxy?
     

@@ -3,11 +3,11 @@ import NIOHTTP1
 
 fileprivate let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
-internal struct NIOHTTPConnection {
+internal struct HTTPConnection {
     public static func start(
-        config: NIOHTTPConnectionConfig,
+        config: HTTPConnectionConfig,
         eventLoopGroup: EventLoopGroup? = nil
-    ) -> EventLoopFuture<NIOHTTPConnection> {
+    ) -> EventLoopFuture<HTTPConnection> {
         var bootstrap = ClientBootstrap(group: eventLoopGroup ?? group)
         if let connectTimeout = config.connectTimeout {
             bootstrap = bootstrap.connectTimeout(connectTimeout)
@@ -25,6 +25,10 @@ internal struct NIOHTTPConnection {
         }
         handlers.append(HTTPRequestEncoder())
         handlers.append(HTTPResponseDecoder())
+        
+        if let _ = config.proxy, case .https(_) = config.server.scheme {
+            handlers.append(HTTPClientProxyHandler(connectionConfig: config))
+        }
         
         // TODO
         

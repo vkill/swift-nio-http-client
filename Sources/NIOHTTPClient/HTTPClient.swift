@@ -1,16 +1,16 @@
 import NIO
 
-public struct NIOHTTPClient {
-    private let connectionConfig: NIOHTTPConnectionConfig
+public struct HTTPClient {
+    private let connectionConfig: HTTPConnectionConfig
     private let eventLoopGroup: EventLoopGroup?
     
-    public init(connectionConfig: NIOHTTPConnectionConfig, on eventLoopGroup: EventLoopGroup? = nil) {
+    public init(connectionConfig: HTTPConnectionConfig, on eventLoopGroup: EventLoopGroup? = nil) {
         self.connectionConfig = connectionConfig
         self.eventLoopGroup = eventLoopGroup
     }
     
     public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
-        return NIOHTTPConnection.start(config: connectionConfig).then { connection in
+        return HTTPConnection.start(config: connectionConfig).then { connection in
             return connection.request(req)
         }
     }
