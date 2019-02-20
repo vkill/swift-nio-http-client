@@ -18,16 +18,20 @@ internal struct HTTPConnection {
             if case .https(let tlsHandler) = proxy.scheme {
                 handlers.append(tlsHandler)
             }
+            
+            handlers.append(HTTPRequestEncoder())
+            handlers.append(HTTPResponseDecoder())
+            
+            if case .https(_) = config.server.scheme {
+                handlers.append(HTTPClientProxyHandler(connectionConfig: config))
+            }
         } else {
             if case .https(let tlsHandler) = config.server.scheme {
                 handlers.append(tlsHandler)
             }
-        }
-        handlers.append(HTTPRequestEncoder())
-        handlers.append(HTTPResponseDecoder())
-        
-        if let _ = config.proxy, case .https(_) = config.server.scheme {
-            handlers.append(HTTPClientProxyHandler(connectionConfig: config))
+            
+            handlers.append(HTTPRequestEncoder())
+            handlers.append(HTTPResponseDecoder())
         }
         
         // TODO

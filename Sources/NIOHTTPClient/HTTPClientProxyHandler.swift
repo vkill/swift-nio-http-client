@@ -8,10 +8,13 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     typealias OutboundOut = HTTPClientRequestPart
     
     let connectionConfig: HTTPConnectionConfig
+    private var buffer: [HTTPClientRequestPart]
     
     init(connectionConfig: HTTPConnectionConfig) {
         assert(connectionConfig.proxy != nil)
         self.connectionConfig = connectionConfig
+        
+        self.buffer = []
     }
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
@@ -22,8 +25,17 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
         case .body(_):
             _ = ""
         case .end:
+            self.buffer.forEach { ctx.write(self.wrapOutboundOut($0), promise: nil) }
+            ctx.flush()
+            
             _ = ctx.pipeline.remove(handler: self)
         }
+    }
+    
+    func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        let req = self.unwrapOutboundIn(data)
+        self.buffer.append(req)
+        promise?.succeed(result: ())
     }
     
     func channelActive(ctx: ChannelHandlerContext) {
