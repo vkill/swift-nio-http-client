@@ -7,16 +7,17 @@ internal final class HTTPClientResponseDecoder: ChannelInboundHandler {
     typealias InboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPResponse
     
-
     enum ResponseState {
         case ready
         case parsingBody(HTTPResponseHead, ByteBuffer?)
     }
     
     var state: ResponseState
+    let connectionConfig: HTTPConnectionConfig
     
-    init() {
+    init(connectionConfig: HTTPConnectionConfig) {
         self.state = .ready
+        self.connectionConfig = connectionConfig
     }
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {

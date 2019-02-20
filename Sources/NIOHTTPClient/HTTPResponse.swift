@@ -10,6 +10,10 @@ public struct HTTPResponse {
         self.head = head
         self.body = body
     }
+    
+    public var status: HTTPResponseStatus {
+        return head.status
+    }
 }
 
 public enum HTTPResponseBody {
