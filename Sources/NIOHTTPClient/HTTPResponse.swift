@@ -4,9 +4,9 @@ import struct Foundation.Data
 
 public struct HTTPResponse {
     public let head: HTTPResponseHead
-    public let body: HTTPResponseBody?
+    public let body: Data?
     
-    init(head: HTTPResponseHead, body: HTTPResponseBody?) {
+    init(head: HTTPResponseHead, body: Data?) {
         self.head = head
         self.body = body
     }
@@ -14,9 +14,4 @@ public struct HTTPResponse {
     public var status: HTTPResponseStatus {
         return head.status
     }
-}
-
-public enum HTTPResponseBody {
-    case whole(Data)
-    // TODO: chunks
 }

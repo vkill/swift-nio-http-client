@@ -39,10 +39,10 @@ final class HTTPClientTests: XCTestCase {
         let clientHTTPBin = try HTTPClient.start(config: .init(server: serverNonTLSHTTPBin, proxy: proxyNonTLS)).wait()
         let res = try clientHTTPBin.get(uri: "http://httpbin.org/anything").wait()
         XCTAssertEqual(res.status, .ok)
-        guard let body = res.body, case let .whole(data) = body else {
+        guard let body = res.body else {
             fatalError()
         }
-        print(String(decoding: data, as: UTF8.self))
+        print(String(decoding: body, as: UTF8.self))
     }
     
     func testServerNonTLSWithProxyTLS() throws {
@@ -61,10 +61,10 @@ final class HTTPClientTests: XCTestCase {
         let clientHTTPBin = try HTTPClient.start(config: .init(server: serverTLSHTTPBin, proxy: proxyNonTLS)).wait()
         let res = try clientHTTPBin.get(uri: "https://httpbin.org/anything").wait()
         XCTAssertEqual(res.status, .ok)
-        guard let body = res.body, case let .whole(data) = body else {
+        guard let body = res.body else {
             fatalError()
         }
-        print(String(decoding: data, as: UTF8.self))
+        print(String(decoding: body, as: UTF8.self))
     }
     
     func testServerTLSWithProxyTLS() throws {

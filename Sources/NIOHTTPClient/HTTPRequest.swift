@@ -4,9 +4,9 @@ import struct Foundation.Data
 
 public struct HTTPRequest {
     public let head: HTTPRequestHead
-    public let body: HTTPRequestBody?
+    public let body: Data?
     
-    public init(head: HTTPRequestHead, body: HTTPRequestBody?) {
+    public init(head: HTTPRequestHead, body: Data?) {
         self.head = head
         self.body = body
     }
@@ -25,15 +25,6 @@ public struct HTTPRequest {
         
         self.head = head
         
-        if let body = body {
-            self.body = HTTPRequestBody.whole(body)
-        } else {
-            self.body = nil
-        }
+        self.body = body
     }
-}
-
-public enum HTTPRequestBody {
-    case whole(Data)
-    // TODO: chunks
 }

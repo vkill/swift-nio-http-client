@@ -46,9 +46,9 @@ internal final class HTTPClientResponseDecoder: ChannelInboundHandler {
             switch self.state {
             case .ready: assert(false, "Unexpected HTTPClientResponsePart.end when awaiting request head.")
             case .parsingBody(let head, let byteBuffer):
-                let body: HTTPResponseBody?
+                let body: Data?
                 if let byteBuffer = byteBuffer, let data = byteBuffer.getData(at: 0, length: byteBuffer.readableBytes) {
-                    body = .whole(data)
+                    body = data
                 } else {
                     body = nil
                 }

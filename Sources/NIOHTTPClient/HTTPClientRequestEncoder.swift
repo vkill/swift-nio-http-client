@@ -43,12 +43,9 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         ctx.write(wrapOutboundOut(.head(head)), promise: nil)
         
         if let body = req.body {
-            switch body {
-            case .whole(let data):
-                var buffer = ByteBufferAllocator().buffer(capacity: data.count)
-                buffer.write(bytes: data)
-                ctx.write(self.wrapOutboundOut(.body(.byteBuffer(buffer))), promise: nil)
-            }
+            var buffer = ByteBufferAllocator().buffer(capacity: body.count)
+            buffer.write(bytes: body)
+            ctx.write(self.wrapOutboundOut(.body(.byteBuffer(buffer))), promise: nil)
         }
 
         ctx.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: promise)
