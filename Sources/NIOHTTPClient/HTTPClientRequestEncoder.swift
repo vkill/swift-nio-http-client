@@ -23,9 +23,9 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         
         head.headers.replaceOrAdd(name: "User-Agent", value: "NIOHTTPClient")
         
-        let urlComponentsTmp = URLComponents(string: head.uri)
-        assert(urlComponentsTmp != nil, "invalid head.uri \(head.uri)")
-        var urlComponents = urlComponentsTmp!
+        guard var urlComponents = URLComponents(string: head.uri) else {
+            precondition(false, "invalid head.uri \(head.uri)")
+        }
         if let _ = config.proxy {
             if case .https(_) = config.server.scheme {
                 urlComponents.host = config.server.address
@@ -35,8 +35,9 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         if !urlComponents.path.hasPrefix("/") {
             urlComponents.path = "/" + urlComponents.path
         }
-        assert(urlComponents.url != nil, "convert URLComponents to URL failed")
-        let url = urlComponents.url!
+        guard let url = urlComponents.url else {
+            precondition(false, "convert URLComponents to URL failed")
+        }
         head.uri = url.absoluteString
         
         ctx.write(wrapOutboundOut(.head(head)), promise: nil)
