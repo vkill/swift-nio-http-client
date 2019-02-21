@@ -54,7 +54,7 @@ public struct HTTPConnection {
         
         
         bootstrap = bootstrap.channelInitializer { channel in
-                return channel.pipeline.addHandlers(handlers, first: false)
+            return channel.pipeline.addHandlers(handlers, first: false)
         }
         
         return bootstrap.connect(host: config.socketHost, port: config.socketPort).map { channel in
