@@ -82,5 +82,5 @@ $ git clone git@github.com:vkill/swift-nio-http-client.git
 $ cd swift-nio-http-client
 
 $ swift build
-$ HTTP_PROXY_URL=http://127.0.0.1:8118 HTTPS_PROXY_URL=https://127.0.0.1:8443 swift test
+$ HTTP_PROXY_URL=http://127.0.0.1:8118 HTTPS_PROXY_URL=https://localhost:8443 swift test
 ```
