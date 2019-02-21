@@ -5,7 +5,7 @@ final class HTTPClientTests: XCTestCase {
     var proxy: HTTPConnectionProxy!
     
     var serverHTTPBin: HTTPConnectionServer!
-    var serverHTTPBinWithTLS: HTTPConnectionServer!
+    var serverHTTPBinTLS: HTTPConnectionServer!
     
     override func setUp() {
         guard let httpProxyURLString = ProcessInfo.processInfo.environment["HTTP_PROXY_URL"] else {
@@ -17,27 +17,27 @@ final class HTTPClientTests: XCTestCase {
         self.proxy = try! HTTPConnectionProxy.make(url: httpProxyURL)
         
         self.serverHTTPBin = try! HTTPConnectionServer.make(url: URL(string: "http://httpbin.org")!)
-        self.serverHTTPBinWithTLS = try! HTTPConnectionServer.make(url: URL(string: "https://httpbin.org")!)
+        self.serverHTTPBinTLS = try! HTTPConnectionServer.make(url: URL(string: "https://httpbin.org")!)
     }
     
     func testHTTPRequests() throws {
-        let clientHTTPBin = HTTPClient(connectionConfig: .init(server: serverHTTPBin))
-        let clientHTTPBinWithTLS = HTTPClient(connectionConfig: .init(server: serverHTTPBinWithTLS))
+        let clientHTTPBin = HTTPClient.start(config: .init(server: serverHTTPBin))
+        let clientHTTPBinTLS = HTTPClient.start(config: .init(server: serverHTTPBinTLS))
         
-        XCTAssertEqual(try clientHTTPBin.get(uri: "http://httpbin.org/status/200").wait().status, .ok)
-        XCTAssertEqual(try clientHTTPBinWithTLS.get(uri: "https://httpbin.org/status/200").wait().status, .ok)
+        XCTAssertEqual(try clientHTTPBin.wait().get(uri: "http://httpbin.org/status/200").wait().status, .ok)
+        XCTAssertEqual(try clientHTTPBinTLS.wait().get(uri: "https://httpbin.org/status/200").wait().status, .ok)
     }
     
-    func testHTTPRequestsViaProxy() {
-        let clientHTTPBin = HTTPClient(connectionConfig: .init(server: serverHTTPBin, proxy: proxy))
-        let clientHTTPBinWithTLS = HTTPClient(connectionConfig: .init(server: serverHTTPBinWithTLS, proxy: proxy))
+    func testHTTPSRequests() {
+        let clientHTTPBin = HTTPClient.start(config: .init(server: serverHTTPBin, proxy: proxy))
+        let clientHTTPBinTLS = HTTPClient.start(config: .init(server: serverHTTPBinTLS, proxy: proxy))
         
-        XCTAssertEqual(try clientHTTPBin.get(uri: "http://httpbin.org/status/200").wait().status, .ok)
-        XCTAssertEqual(try clientHTTPBinWithTLS.get(uri: "https://httpbin.org/status/200").wait().status, .ok)
+        XCTAssertEqual(try clientHTTPBin.wait().get(uri: "http://httpbin.org/status/200").wait().status, .ok)
+        XCTAssertEqual(try clientHTTPBinTLS.wait().get(uri: "https://httpbin.org/status/200").wait().status, .ok)
     }
 
     static var allTests = [
         ("testHTTPRequests", testHTTPRequests),
-        ("testHTTPRequestsViaProxy", testHTTPRequestsViaProxy),
+        ("testHTTPRequestsViaProxy", testHTTPSRequests),
     ]
 }

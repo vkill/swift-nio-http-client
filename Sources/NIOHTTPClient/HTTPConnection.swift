@@ -3,7 +3,7 @@ import NIOHTTP1
 
 fileprivate let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
-internal struct HTTPConnection {
+public struct HTTPConnection {
     public static func start(
         config: HTTPConnectionConfig,
         eventLoopGroup: EventLoopGroup? = nil
@@ -26,7 +26,7 @@ internal struct HTTPConnection {
             handlers.append(httpResDecoder)
             
             if case .https(let tlsHandler) = config.server.scheme {
-                let proxyHandler = HTTPClientProxyHandler(connectionConfig: config) { ctx in
+                let proxyHandler = HTTPClientProxyHandler(config: config) { ctx in
                     _ = ctx.pipeline.add(handler: tlsHandler, before: httpReqEncoder)
                 }
                 handlers.append(proxyHandler)
@@ -43,10 +43,10 @@ internal struct HTTPConnection {
             handlers.append(httpResDecoder)
         }
         
-        let httpClientReqEncoder = HTTPClientRequestEncoder(connectionConfig: config)
+        let httpClientReqEncoder = HTTPClientRequestEncoder(config: config)
         handlers.append(httpClientReqEncoder)
         
-        let httpClientResDecoder = HTTPClientResponseDecoder(connectionConfig: config)
+        let httpClientResDecoder = HTTPClientResponseDecoder(config: config)
         handlers.append(httpClientResDecoder)
         
         let httpClientHandler = HTTPClientHandler()
@@ -64,9 +64,7 @@ internal struct HTTPConnection {
     
     public var channel: Channel
     
-    public init(
-        channel: Channel
-    ) {
+    public init(channel: Channel) {
         self.channel = channel
     }
     

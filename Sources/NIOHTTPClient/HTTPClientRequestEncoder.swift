@@ -7,10 +7,10 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
     typealias OutboundIn = HTTPRequest
     typealias OutboundOut = HTTPClientRequestPart
     
-    let connectionConfig: HTTPConnectionConfig
+    let config: HTTPConnectionConfig
     
-    init(connectionConfig: HTTPConnectionConfig) {
-        self.connectionConfig = connectionConfig
+    init(config: HTTPConnectionConfig) {
+        self.config = config
     }
     
     func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
@@ -18,7 +18,7 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         
         var head = req.head
         
-        let host = connectionConfig.server.isDefaultPort ? connectionConfig.server.address : "\(connectionConfig.server.address):\(connectionConfig.server.port)"
+        let host = config.server.isDefaultPort ? config.server.address : "\(config.server.address):\(config.server.port)"
         head.headers.replaceOrAdd(name: "Host", value: host)
         
         head.headers.replaceOrAdd(name: "User-Agent", value: "NIOHTTPClient")
@@ -26,10 +26,10 @@ internal final class HTTPClientRequestEncoder: ChannelOutboundHandler {
         guard var urlComponents = URLComponents(string: head.uri) else {
             assert(false, "invalid head.uri \(head.uri)")
         }
-        if let _ = connectionConfig.proxy {
-            if case .https(_) = connectionConfig.server.scheme {
-                urlComponents.host = connectionConfig.server.address
-                urlComponents.port = connectionConfig.server.port
+        if let _ = config.proxy {
+            if case .https(_) = config.server.scheme {
+                urlComponents.host = config.server.address
+                urlComponents.port = config.server.port
             }
         }
         if !urlComponents.path.hasPrefix("/") {

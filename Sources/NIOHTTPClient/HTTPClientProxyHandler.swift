@@ -7,13 +7,13 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     typealias OutboundIn = HTTPClientRequestPart
     typealias OutboundOut = HTTPClientRequestPart
     
-    let connectionConfig: HTTPConnectionConfig
+    let config: HTTPConnectionConfig
     var onConnect: (ChannelHandlerContext) -> ()
     private var buffer: [HTTPClientRequestPart]
     
-    init(connectionConfig: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
-        assert(connectionConfig.proxy != nil, "Should have proxy")
-        self.connectionConfig = connectionConfig
+    init(config: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
+        assert(config.proxy != nil, "Should have proxy")
+        self.config = config
         self.onConnect = onConnect
         self.buffer = []
     }
@@ -45,12 +45,12 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
         var head = HTTPRequestHead(
             version: .init(major: 1, minor: 1),
             method: .CONNECT,
-            uri: "\(connectionConfig.server.address):\(connectionConfig.server.port)"
+            uri: "\(config.server.address):\(config.server.port)"
         )
-        head.headers.replaceOrAdd(name: "Host", value: "\(connectionConfig.server.address):\(connectionConfig.server.port)")
+        head.headers.replaceOrAdd(name: "Host", value: "\(config.server.address):\(config.server.port)")
         head.headers.replaceOrAdd(name: "User-Agent", value: "NIOHTTPClient")
         head.headers.replaceOrAdd(name: "Proxy-Connection", value: "Keep-Alive")
-        guard let proxy = connectionConfig.proxy else {
+        guard let proxy = config.proxy else {
             fatalError()
         }
         if let username = proxy.username, let password = proxy.password {

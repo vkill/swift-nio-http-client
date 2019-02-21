@@ -3,12 +3,16 @@ import NIOHTTP1
 import struct Foundation.Data
 
 public struct HTTPClient {
-    private let connectionConfig: HTTPConnectionConfig
-    private let eventLoopGroup: EventLoopGroup?
+    public static func start(config: HTTPConnectionConfig, on eventLoopGroup: EventLoopGroup? = nil) -> EventLoopFuture<HTTPClient> {
+        return HTTPConnection.start(config: config, eventLoopGroup: eventLoopGroup).map { connection in
+            return self.init(connection: connection)
+        }
+    }
     
-    public init(connectionConfig: HTTPConnectionConfig, on eventLoopGroup: EventLoopGroup? = nil) {
-        self.connectionConfig = connectionConfig
-        self.eventLoopGroup = eventLoopGroup
+    public let connection: HTTPConnection
+    
+    public init(connection: HTTPConnection) {
+        self.connection = connection
     }
     
     public func head(uri: String, headers: HTTPHeaders? = nil) -> EventLoopFuture<HTTPResponse> {
@@ -47,9 +51,7 @@ public struct HTTPClient {
     }
     
     public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
-        return HTTPConnection.start(config: connectionConfig).then { connection in
-            return connection.request(req)
-        }
+        return connection.request(req)
     }
 }
 

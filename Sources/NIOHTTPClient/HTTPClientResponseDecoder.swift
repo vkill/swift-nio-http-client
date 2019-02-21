@@ -13,11 +13,11 @@ internal final class HTTPClientResponseDecoder: ChannelInboundHandler {
     }
     
     var state: ResponseState
-    let connectionConfig: HTTPConnectionConfig
+    let config: HTTPConnectionConfig
     
-    init(connectionConfig: HTTPConnectionConfig) {
+    init(config: HTTPConnectionConfig) {
         self.state = .ready
-        self.connectionConfig = connectionConfig
+        self.config = config
     }
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
