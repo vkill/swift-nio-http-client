@@ -53,6 +53,10 @@ public struct HTTPClient {
     public func request(_ req: HTTPRequest) -> EventLoopFuture<HTTPResponse> {
         return connection.request(req)
     }
+    
+    public func close() -> EventLoopFuture<Void> {
+        return connection.close()
+    }
 }
 
 internal final class HTTPClientContext {
