@@ -11,14 +11,22 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
     var onConnect: (ChannelHandlerContext) -> ()
     private var buffer: [HTTPClientRequestPart]
     
+    var connected: Bool
+    
     init(config: HTTPConnectionConfig, onConnect: @escaping (ChannelHandlerContext) -> ()) {
         assert(config.proxy != nil, "Should have proxy")
         self.config = config
         self.onConnect = onConnect
         self.buffer = []
+        
+        self.connected = false
     }
     
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
+        if connected {
+            return ctx.fireChannelRead(data)
+        }
+        
         let res = self.unwrapInboundIn(data)
         switch res {
         case .head(let head):
@@ -31,14 +39,21 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
             self.buffer.forEach { ctx.write(self.wrapOutboundOut($0), promise: nil) }
             ctx.flush()
             
+            self.connected = true
+            
             _ = ctx.pipeline.remove(handler: self)
         }
     }
     
     func write(ctx: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         let req = self.unwrapOutboundIn(data)
-        self.buffer.append(req)
-        promise?.succeed(result: ())
+        
+        if connected {
+            ctx.writeAndFlush(self.wrapOutboundOut(req), promise: promise)
+        } else {
+            self.buffer.append(req)
+            promise?.succeed(result: ())
+        }
     }
     
     func channelActive(ctx: ChannelHandlerContext) {

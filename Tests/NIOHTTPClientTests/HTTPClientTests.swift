@@ -1,5 +1,6 @@
 import XCTest
 @testable import NIOHTTPClient
+import NIO
 
 final class HTTPClientTests: XCTestCase {
     var proxyNonTLS: HTTPConnectionProxy!
@@ -65,6 +66,22 @@ final class HTTPClientTests: XCTestCase {
             fatalError()
         }
         print(String(decoding: body, as: UTF8.self))
+        
+        //
+        let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        defer {
+            try? group.syncShutdownGracefully()
+        }
+        
+        var resFutures: [EventLoopFuture<HTTPResponse>] = []
+        resFutures.append(clientHTTPBin.get(uri: "https://httpbin.org/status/200"))
+        resFutures.append(clientHTTPBin.get(uri: "https://httpbin.org/status/201"))
+        resFutures.append(clientHTTPBin.get(uri: "https://httpbin.org/status/202"))
+        let resResults = try EventLoopFuture.reduce(into: [], resFutures, eventLoop: group.next(), { (results, value) in results.append(value) }).wait()
+        print(resResults.map{ $0.status })
+        XCTAssertEqual(resResults.filter{ $0.status == .ok }.count, 1)
+        XCTAssertEqual(resResults.filter{ $0.status == .created }.count, 1)
+        XCTAssertEqual(resResults.filter{ $0.status == .accepted }.count, 1)
     }
     
     func testServerTLSWithProxyTLS() throws {
