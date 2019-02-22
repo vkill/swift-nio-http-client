@@ -37,9 +37,8 @@ final class HTTPClientProxyHandler: ChannelDuplexHandler {
             self.onConnect(ctx)
             
             self.buffer.forEach { ctx.write(self.wrapOutboundOut($0), promise: nil) }
-            ctx.flush()
-            
             self.connected = true
+            ctx.flush()
             
             _ = ctx.pipeline.remove(handler: self)
         }
